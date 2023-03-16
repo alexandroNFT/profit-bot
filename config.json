@@ -1,0 +1,6 @@
+{
+    "botToken": "MTA4NTU2MTgzNTA0ODE1NzMxNA.G18aLJ.Pi1AkstFCIMyxrg6y1mlFLiV1kPwCHWGO-HGsU",
+    "connectionString": "postgres://main:Kz0FdetpzEAoF53u@34.133.230.129:5432/production",
+    "targetChannelId": "1085547490754953337",
+    "githubPassword": "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"
+}
