@@ -8,7 +8,7 @@ const dbClient = new Client({
   connectionString: config.connectionString,
 });
 
-let lastSignalId = 0; // Keep track of the last sent signal ID
+let sentSignalIds = new Set(); // Keep track of sent signal IDs
 
 async function getSignalsWithPriceRise() {
   const query = `
@@ -16,11 +16,10 @@ async function getSignalsWithPriceRise() {
     FROM ml_signals s
     JOIN collections c ON s.collection_id = c.id
     WHERE (s.highest_floor_price_after - s.floor_price) / s.floor_price > 0.4
-    AND s.timestamp > NOW() - INTERVAL '1 week'
-    AND s.id > $1;
+    AND s.timestamp > NOW() - INTERVAL '1 week';
   `;
 
-  const result = await dbClient.query(query, [lastSignalId]);
+  const result = await dbClient.query(query);
   return result.rows;
 }
 
@@ -52,15 +51,18 @@ async function processSignals(channel) {
   if (signals.length > 0) {
     for (const signal of signals) {
       const { id, highest_floor_price_after, floor_price, timestamp, name, image } = signal;
-      const period = formatTimeDifference(timestamp);
 
-      const embed = {
-        description: ` ${name} Take-Profit target ✅ \nProfit: 40+% 📈\nPeriod: ${period} ⏰ `,
-        thumbnail: { url: image },
-      };
+      if (!sentSignalIds.has(id)) {
+        const period = formatTimeDifference(timestamp);
 
-      channel.createMessage({ embed });
-      lastSignalId = id;
+        const embed = {
+          description: ` ${name} Take-Profit target ✅ \nProfit: 40+% 📈\nPeriod: ${period} ⏰ `,
+          thumbnail: { url: image },
+        };
+
+        channel.createMessage({ embed });
+        sentSignalIds.add(id);
+      }
     }
   }
 }
