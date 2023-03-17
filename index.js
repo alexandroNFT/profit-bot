@@ -16,7 +16,7 @@ async function getSignalsWithPriceRise() {
     FROM ml_signals s
     JOIN collections c ON s.collection_id = c.id
     WHERE (s.highest_floor_price_after - s.floor_price) / s.floor_price > 0.4
-    AND s.timestamp > NOW() - INTERVAL '1 week';
+    AND s.timestamp > NOW() - INTERVAL '10m';
   `;
 
   const result = await dbClient.query(query);
@@ -56,12 +56,13 @@ async function processSignals(channel) {
         const period = formatTimeDifference(timestamp);
 
         const embed = {
-          description: ` ${name} Take-Profit target ✅ \nProfit: 40+% 📈\nPeriod: ${period} ⏰ `,
+          description: ` ${name} Take-Profit target ✅\nFloor price when called: ${floor_price} \nHighest floor price after: ${highest_floor_price_after} \nProfit: 40+% 📈\nPeriod: ${period} ⏰`,
           thumbnail: { url: image },
         };
 
         channel.createMessage({ embed });
         sentSignalIds.add(id);
+        console.log('signal send')
       }
     }
   }
