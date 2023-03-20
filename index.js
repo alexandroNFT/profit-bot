@@ -16,7 +16,7 @@ async function getSignalsWithPriceRise() {
     FROM ml_signals s
     JOIN collections c ON s.collection_id = c.id
     WHERE (s.highest_floor_price_after - s.floor_price) / s.floor_price > 0.4
-    AND s.timestamp > NOW() - INTERVAL '10m';
+    AND s.timestamp > NOW() - INTERVAL '1 Week';
   `;
 
   const result = await dbClient.query(query);
